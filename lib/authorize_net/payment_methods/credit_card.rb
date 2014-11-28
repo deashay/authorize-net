@@ -53,22 +53,19 @@ module AuthorizeNet
         :exp_date => @expiration
       }
       hash[:card_code] = @card_code unless @card_code.nil?
-      unless @track_1.nil?
-        track_1 = @track_1
-        if track_1[0..0] == '%'
-          track_1 = track_1[1..(@track_1.rindex('?') - 1)]
-        end
-        hash[:track1] = track_1
-      end
-      unless @track_2.nil?
-        track_2 = @track_2
-        if track_2[0..0] == ';'
-          track_2 = track_2[1..(@track_2.rindex('?') - 1)]
-        end
-        hash[:track2] = track_2
-      end
+
+      hash[:track1] = strip_sentinels(@track_1, '%', '?') unless @track_1.nil?
+      hash[:track2] = strip_sentinels(@track_2, ';', '?') unless @track_2.nil?
       hash
     end
-    
+
+    def strip_sentinels(track, begin_sign, end_sign)
+      result = track
+      index = track.rindex(end_sign)
+      if result[0..0] == begin_sign && index.present?
+        result = result[1..(index - 1)]
+      end
+      result
+    end
   end
 end
